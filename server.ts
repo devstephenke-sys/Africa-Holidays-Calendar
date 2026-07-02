@@ -223,7 +223,7 @@ if (process.env.NODE_ENV !== "production") {
   }).then((vite) => {
     app.use(vite.middlewares);
   });
-} else {
+} else if (!process.env.VERCEL) {
   const distPath = path.join(process.cwd(), 'dist');
   app.use(express.static(distPath));
   // SPA fallback
