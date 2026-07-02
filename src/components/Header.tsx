@@ -22,17 +22,17 @@ export const Header: React.FC<HeaderProps> = ({ currentView, setView, darkMode, 
           {/* Logo */}
           <button 
             onClick={() => setView('home')} 
-            className="flex items-center gap-2 text-left group cursor-pointer focus:outline-none"
+            className="flex items-center gap-3 text-left group cursor-pointer focus:outline-none"
             id="brand-logo"
           >
-            <div className="bg-amber-500 text-white p-2 rounded-lg group-hover:scale-105 transition-transform">
-              <Calendar className="w-5 h-5" />
+            <div className="w-10 h-10 bg-emerald-600 rounded-lg flex items-center justify-center text-white font-bold text-xl group-hover:scale-105 transition-transform">
+              A
             </div>
             <div>
-              <h1 className="font-display font-bold text-lg leading-tight text-zinc-900 dark:text-zinc-50 flex items-center gap-1.5">
-                Africa Holidays <span className="text-xs font-mono bg-amber-500/10 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded font-semibold tracking-wide">CALENDAR</span>
+              <h1 className="text-xl font-bold text-slate-900 dark:text-white leading-none">
+                AfricaHolidays
               </h1>
-              <p className="text-[10px] text-zinc-500 dark:text-zinc-400">African Public Holidays Calendar</p>
+              <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold uppercase tracking-wider">The Continent's Calendar</p>
             </div>
           </button>
 
@@ -49,7 +49,7 @@ export const Header: React.FC<HeaderProps> = ({ currentView, setView, darkMode, 
               {user && (
                 <button 
                   onClick={() => setView('admin')}
-                  className={`text-sm font-medium px-3 py-1.5 rounded-lg transition-colors cursor-pointer flex items-center gap-1.5 ${currentView === 'admin' ? 'bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100'}`}
+                  className={`text-sm font-medium px-3 py-1.5 rounded-lg transition-colors cursor-pointer flex items-center gap-1.5 ${currentView === 'admin' ? 'bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400' : 'text-zinc-600 dark:text-zinc-400 hover:text-emerald-900 dark:hover:text-zinc-100'}`}
                 >
                   <Globe className="w-4 h-4" />
                   Admin Dashboard
@@ -87,7 +87,7 @@ export const Header: React.FC<HeaderProps> = ({ currentView, setView, darkMode, 
                       referrerPolicy="no-referrer"
                     />
                   ) : (
-                    <div className="w-8 h-8 rounded-full bg-amber-500 text-white flex items-center justify-center text-xs font-bold">
+                    <div className="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold">
                       {user.email?.charAt(0).toUpperCase()}
                     </div>
                   )}
@@ -100,16 +100,7 @@ export const Header: React.FC<HeaderProps> = ({ currentView, setView, darkMode, 
                     <LogOut className="w-4 h-4" />
                   </button>
                 </div>
-              ) : (
-                <button
-                  onClick={signIn}
-                  className="flex items-center gap-1.5 text-xs font-semibold bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 px-3.5 py-2 rounded-lg transition-transform hover:scale-102 cursor-pointer shadow-sm"
-                  id="sign-in-btn"
-                >
-                  <LogIn className="w-4 h-4" />
-                  <span>Admin Sign In</span>
-                </button>
-              )}
+              ) : null}
             </div>
           </div>
         </div>
@@ -117,7 +108,7 @@ export const Header: React.FC<HeaderProps> = ({ currentView, setView, darkMode, 
 
       {/* Developer Admin Simulation banner */}
       {user && dbUser && dbUser.role !== 'admin' && (
-        <div className="bg-amber-500/10 dark:bg-amber-500/20 text-amber-800 dark:text-amber-400 px-4 py-2 text-xs flex flex-wrap items-center justify-between gap-2 border-t border-b border-amber-500/20">
+        <div className="bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-400 px-4 py-2 text-xs flex flex-wrap items-center justify-between gap-2 border-t border-b border-emerald-500/20">
           <div className="flex items-center gap-2">
             <ShieldAlert className="w-4 h-4 flex-shrink-0" />
             <span>
@@ -130,7 +121,7 @@ export const Header: React.FC<HeaderProps> = ({ currentView, setView, darkMode, 
                 type="checkbox" 
                 checked={isDevAdmin}
                 onChange={(e) => setIsDevAdmin(e.target.checked)}
-                className="rounded border-amber-400 text-amber-500 focus:ring-amber-500/40 w-3.5 h-3.5"
+                className="rounded border-emerald-400 text-emerald-500 focus:ring-emerald-500/40 w-3.5 h-3.5"
               />
               Enable Full Admin CRUD Features
             </label>

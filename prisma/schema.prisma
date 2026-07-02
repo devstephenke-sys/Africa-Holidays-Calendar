@@ -1,0 +1,59 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  uid       String   @unique
+  email     String
+  role      String   @default("user")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("users")
+}
+
+model Country {
+  id          Int       @id @default(autoincrement())
+  countryName String    @unique @map("country_name")
+  code        String    @unique
+  flag        String?
+  createdAt   DateTime  @default(now()) @map("created_at")
+  holidays    Holiday[]
+
+  @@map("countries")
+}
+
+model Holiday {
+  id          Int      @id @default(autoincrement())
+  countryId   Int      @map("country_id")
+  holidayName String   @map("holiday_name")
+  date        String
+  month       String
+  year        Int
+  day         String
+  description String
+  type        String
+  isPublic    Boolean  @default(true) @map("is_public")
+  createdAt   DateTime @default(now()) @map("created_at")
+  country     Country  @relation(fields: [countryId], references: [id], onDelete: Cascade)
+
+  @@map("holidays")
+}
+
+model AdsPosition {
+  id          Int      @id @default(autoincrement())
+  positionKey String   @unique @map("position_key")
+  displayName String   @map("display_name")
+  isActive    Boolean  @default(true) @map("is_active")
+  adClient    String   @default("ca-pub-1234567890123456") @map("ad_client")
+  adSlot      String   @default("1234567890") @map("ad_slot")
+  adFormat    String   @default("auto") @map("ad_format")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("ads_positions")
+}

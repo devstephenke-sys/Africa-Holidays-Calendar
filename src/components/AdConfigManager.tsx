@@ -53,7 +53,7 @@ export const AdConfigManager: React.FC<AdConfigManagerProps> = ({ ads, onUpdateA
       <div className="flex justify-between items-center pb-4 border-b border-zinc-100 dark:border-zinc-800">
         <div>
           <h3 className="font-display font-semibold text-lg text-zinc-900 dark:text-zinc-50 flex items-center gap-2">
-            <Settings className="w-5 h-5 text-amber-500" />
+            <Settings className="w-5 h-5 text-emerald-600 dark:text-emerald-500" />
             AdSense Placements Manager
           </h3>
           <p className="text-xs text-zinc-500">Configure where Google Ads appear across holiday queries and search lists</p>
@@ -154,7 +154,7 @@ export const AdConfigManager: React.FC<AdConfigManagerProps> = ({ ads, onUpdateA
                       <button
                         onClick={() => handleSave(ad.id)}
                         disabled={loading}
-                        className="px-3 py-1.5 text-xs font-semibold bg-amber-500 text-white rounded-lg shadow-sm hover:bg-amber-600 flex items-center gap-1 cursor-pointer"
+                        className="px-3 py-1.5 text-xs font-semibold bg-emerald-600 text-white rounded-lg shadow-sm hover:bg-emerald-700 flex items-center gap-1 cursor-pointer"
                       >
                         <Save className="w-3.5 h-3.5" />
                         <span>Save</span>

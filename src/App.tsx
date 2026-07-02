@@ -24,7 +24,9 @@ import {
   AlertCircle,
   FileText,
   Building,
-  DollarSign
+  DollarSign,
+  ChevronDown,
+  Globe
 } from 'lucide-react';
 
 // Main Inner Component to utilize Auth Context
@@ -71,6 +73,10 @@ const AppContent: React.FC = () => {
   
   const [isCountryModalOpen, setIsCountryModalOpen] = useState(false);
   const [editingCountry, setEditingCountry] = useState<Country | null>(null);
+
+  // Popular countries dropdown state
+  const [isCountryDropdownOpen, setIsCountryDropdownOpen] = useState(false);
+  const [countrySearchQuery, setCountrySearchQuery] = useState('');
 
   // Notifications
   const [notice, setNotice] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
@@ -464,54 +470,123 @@ const AppContent: React.FC = () => {
               {/* Hero Banner Section */}
               <div className="text-center space-y-3 py-4 max-w-3xl mx-auto">
                 <h2 className="font-display font-bold text-3xl sm:text-4xl tracking-tight text-zinc-900 dark:text-white leading-tight">
-                  Find public holidays across all <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-rose-500">African countries</span> in seconds.
+                  Find public holidays across all <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500 dark:from-emerald-400 dark:to-teal-300">African countries</span> in seconds.
                 </h2>
                 <p className="text-sm sm:text-base text-zinc-500 dark:text-zinc-400">
                   Search, filter, and plan your schedules around African national observances, religious feasts, and public holidays with travel-optimized guides.
                 </p>
               </div>
 
-              {/* Popular countries quick link buttons */}
-              <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 shadow-xs">
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-3 flex items-center gap-1.5">
-                  <MapPin className="w-4 h-4 text-amber-500" />
-                  Popular Country Holiday Calendars
-                </h3>
-                <div className="flex flex-wrap gap-2.5">
-                  {countries.map(c => (
+              {/* Popular Country Holiday Calendars Dropdown */}
+              <div className="relative bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5 shadow-xs z-30">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div>
+                    <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-1 flex items-center gap-1.5">
+                      <MapPin className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                      Popular Country Holiday Calendars
+                    </h3>
+                    <p className="text-xs text-zinc-400">Select any African nation to view its complete 2026 holiday schedule, travel insights, and national observances.</p>
+                  </div>
+
+                  <div className="relative w-full md:w-80">
                     <button
-                      key={c.id}
-                      onClick={() => navigate('country', c.countryName)}
-                      className="px-3.5 py-1.5 text-xs font-semibold bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg hover:border-amber-500 dark:hover:border-amber-500 cursor-pointer flex items-center gap-1.5 hover:scale-103 transition-all"
-                      id={`btn-country-pill-${c.code}`}
+                      onClick={() => setIsCountryDropdownOpen(!isCountryDropdownOpen)}
+                      className="w-full flex items-center justify-between gap-2 px-4 py-3 text-xs font-semibold bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700/80 rounded-xl hover:border-emerald-600 dark:hover:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all cursor-pointer text-zinc-800 dark:text-zinc-200"
+                      id="country-dropdown-btn"
                     >
-                      <span>{c.flag}</span>
-                      <span>{c.countryName}</span>
+                      <span className="flex items-center gap-2">
+                        <Globe className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                        <span>Explore Country Calendars...</span>
+                      </span>
+                      <ChevronDown className={`w-4 h-4 text-zinc-400 transition-transform duration-200 ${isCountryDropdownOpen ? 'rotate-180' : ''}`} />
                     </button>
-                  ))}
-                  {countries.length === 0 && (
-                    <span className="text-xs text-zinc-400">No countries available. Sign in to add custom countries!</span>
-                  )}
+
+                    <AnimatePresence>
+                      {isCountryDropdownOpen && (
+                        <>
+                          <div 
+                            className="fixed inset-0 z-40" 
+                            onClick={() => {
+                              setIsCountryDropdownOpen(false);
+                              setCountrySearchQuery('');
+                            }} 
+                          />
+                          
+                          <motion.div
+                            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                            transition={{ duration: 0.15, ease: 'easeOut' }}
+                            className="absolute right-0 left-0 mt-2 z-50 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-xl overflow-hidden flex flex-col"
+                          >
+                            <div className="p-2 border-b border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/20">
+                              <div className="relative">
+                                <Search className="absolute left-3 top-2.5 w-3.5 h-3.5 text-zinc-400" />
+                                <input
+                                  type="text"
+                                  placeholder="Search 54 African countries..."
+                                  value={countrySearchQuery}
+                                  onChange={(e) => setCountrySearchQuery(e.target.value)}
+                                  className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-zinc-900 dark:text-zinc-100"
+                                  autoFocus
+                                  onClick={(e) => e.stopPropagation()}
+                                />
+                              </div>
+                            </div>
+
+                            <div className="max-h-64 overflow-y-auto py-1 scrollbar-thin scrollbar-thumb-zinc-200 dark:scrollbar-thumb-zinc-800">
+                              {countries
+                                .filter(c => c.countryName.toLowerCase().includes(countrySearchQuery.toLowerCase()))
+                                .map(c => (
+                                  <button
+                                    key={c.id}
+                                    onClick={() => {
+                                      navigate('country', c.countryName);
+                                      setIsCountryDropdownOpen(false);
+                                      setCountrySearchQuery('');
+                                    }}
+                                    className="w-full px-4 py-2 text-xs font-medium text-left hover:bg-emerald-50 dark:hover:bg-emerald-950/30 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors flex items-center justify-between cursor-pointer"
+                                    id={`dropdown-item-country-${c.code}`}
+                                  >
+                                    <span className="flex items-center gap-2.5">
+                                      <span className="text-base">{c.flag}</span>
+                                      <span className="text-zinc-800 dark:text-zinc-200">{c.countryName}</span>
+                                    </span>
+                                    <span className="text-[10px] font-mono text-zinc-400">{c.code}</span>
+                                  </button>
+                                ))}
+                              
+                              {countries.filter(c => c.countryName.toLowerCase().includes(countrySearchQuery.toLowerCase())).length === 0 && (
+                                <div className="px-4 py-3 text-xs text-zinc-400 text-center">
+                                  No countries match "{countrySearchQuery}"
+                                </div>
+                              )}
+                            </div>
+                          </motion.div>
+                        </>
+                      )}
+                    </AnimatePresence>
+                  </div>
                 </div>
               </div>
 
               {/* Search and Filters Bento Grid */}
-              <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm space-y-4">
-                <h3 className="font-display font-semibold text-sm text-zinc-950 dark:text-zinc-50 flex items-center gap-2">
-                  <Filter className="w-4 h-4 text-amber-500" />
+              <div className="bg-emerald-900 dark:bg-zinc-900/60 border border-emerald-800/10 dark:border-zinc-800 rounded-2xl p-6 shadow-md space-y-4 text-white">
+                <h3 className="font-display font-semibold text-sm text-emerald-100 dark:text-zinc-100 flex items-center gap-2">
+                  <Filter className="w-4 h-4 text-emerald-300" />
                   Filter African Public Holidays
                 </h3>
                 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-zinc-900 dark:text-zinc-100">
                   {/* Holiday Name Search input */}
                   <div className="relative">
-                    <Search className="absolute left-3.5 top-3 w-4 h-4 text-zinc-400" />
+                    <Search className="absolute left-3.5 top-3.5 w-4 h-4 text-zinc-400" />
                     <input
                       type="text"
                       placeholder="Search holiday name..."
                       value={searchKeyword}
                       onChange={(e) => setSearchKeyword(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2 text-xs font-medium rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/40 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none text-zinc-900 dark:text-zinc-100"
+                      className="w-full pl-10 pr-4 py-2.5 text-xs font-medium rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800/80 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none text-zinc-900 dark:text-zinc-100"
                       id="search-name-input"
                     />
                   </div>
@@ -521,7 +596,7 @@ const AppContent: React.FC = () => {
                     <select
                       value={filterCountry}
                       onChange={(e) => setFilterCountry(e.target.value)}
-                      className="w-full px-3 py-2 text-xs font-medium rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/40 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none text-zinc-900 dark:text-zinc-100"
+                      className="w-full px-3 py-2.5 text-xs font-medium rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800/80 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none text-zinc-900 dark:text-zinc-100"
                       id="filter-country-select"
                     >
                       <option value="">All Countries</option>
@@ -536,7 +611,7 @@ const AppContent: React.FC = () => {
                     <select
                       value={filterMonth}
                       onChange={(e) => setFilterMonth(e.target.value)}
-                      className="w-full px-3 py-2 text-xs font-medium rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/40 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none text-zinc-900 dark:text-zinc-100"
+                      className="w-full px-3 py-2.5 text-xs font-medium rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800/80 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none text-zinc-900 dark:text-zinc-100"
                       id="filter-month-select"
                     >
                       <option value="">All Months</option>
@@ -551,7 +626,7 @@ const AppContent: React.FC = () => {
                     <select
                       value={filterYear}
                       onChange={(e) => setFilterYear(e.target.value)}
-                      className="w-full px-3 py-2 text-xs font-medium rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/40 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none text-zinc-900 dark:text-zinc-100"
+                      className="w-full px-3 py-2.5 text-xs font-medium rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800/80 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none text-zinc-900 dark:text-zinc-100"
                       id="filter-year-select"
                     >
                       <option value="">All Years</option>
@@ -566,7 +641,7 @@ const AppContent: React.FC = () => {
                     <select
                       value={filterType}
                       onChange={(e) => setFilterType(e.target.value)}
-                      className="w-full px-3 py-2 text-xs font-medium rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/40 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none text-zinc-900 dark:text-zinc-100"
+                      className="w-full px-3 py-2.5 text-xs font-medium rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800/80 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none text-zinc-900 dark:text-zinc-100"
                       id="filter-type-select"
                     >
                       <option value="">All Types</option>
@@ -589,7 +664,7 @@ const AppContent: React.FC = () => {
                         setFilterType('');
                         setSearchKeyword('');
                       }}
-                      className="text-[11px] font-semibold text-rose-500 hover:text-rose-600 flex items-center gap-1 cursor-pointer"
+                      className="text-[11px] font-semibold text-rose-300 hover:text-rose-100 flex items-center gap-1 cursor-pointer"
                     >
                       Clear All Filters
                     </button>
@@ -605,7 +680,7 @@ const AppContent: React.FC = () => {
                   <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl overflow-hidden shadow-xs">
                     <div className="px-6 py-4 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
                       <h3 className="font-display font-semibold text-sm text-zinc-900 dark:text-white flex items-center gap-1.5">
-                        <CalIcon className="w-4 h-4 text-amber-500" />
+                        <CalIcon className="w-4 h-4 text-emerald-600 dark:text-emerald-500" />
                         Public Holidays Search Results
                       </h3>
                       <span className="text-[10px] bg-neutral-100 dark:bg-zinc-800 px-2 py-0.5 rounded font-mono text-zinc-500">
@@ -651,7 +726,7 @@ const AppContent: React.FC = () => {
                                   <td className="px-6 py-4 font-semibold text-zinc-900 dark:text-zinc-100">
                                     <button 
                                       onClick={() => navigate('holiday', h.id)}
-                                      className="hover:text-amber-500 hover:underline cursor-pointer text-left font-display font-medium"
+                                      className="hover:text-emerald-600 dark:hover:text-emerald-400 hover:underline cursor-pointer text-left font-display font-medium"
                                     >
                                       {h.holidayName}
                                     </button>
@@ -671,7 +746,7 @@ const AppContent: React.FC = () => {
                                     </button>
                                   </td>
                                   <td className="px-4 py-4">
-                                    <span className={`inline-flex px-2 py-0.5 rounded text-[10px] font-semibold ${h.type === 'Public' ? 'bg-amber-100 text-amber-800 dark:bg-amber-500/10 dark:text-amber-400' : h.type === 'Religious' ? 'bg-indigo-100 text-indigo-800 dark:bg-indigo-500/10 dark:text-indigo-400' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-400'}`}>
+                                    <span className={`inline-flex px-2 py-0.5 rounded text-[10px] font-semibold ${h.type === 'Public' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-400' : h.type === 'Religious' ? 'bg-indigo-100 text-indigo-800 dark:bg-indigo-500/10 dark:text-indigo-400' : 'bg-blue-100 text-blue-800 dark:bg-blue-500/10 dark:text-blue-400'}`}>
                                       {h.type}
                                     </span>
                                   </td>
@@ -679,7 +754,7 @@ const AppContent: React.FC = () => {
                                     <div className="flex justify-end gap-2">
                                       <button 
                                         onClick={() => navigate('holiday', h.id)}
-                                        className="text-amber-500 hover:text-amber-600 font-semibold flex items-center gap-1 cursor-pointer"
+                                        className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 font-semibold flex items-center gap-1 cursor-pointer"
                                       >
                                         Details <ArrowRight className="w-3 h-3" />
                                       </button>
@@ -713,7 +788,7 @@ const AppContent: React.FC = () => {
                             <button
                               key={i}
                               onClick={() => paginateTo(i + 1)}
-                              className={`px-3 py-1 text-xs rounded-lg font-semibold cursor-pointer ${currentPage === i + 1 ? 'bg-amber-500 text-white' : 'border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-300'}`}
+                              className={`px-3 py-1 text-xs rounded-lg font-semibold cursor-pointer ${currentPage === i + 1 ? 'bg-emerald-600 text-white' : 'border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-300'}`}
                             >
                               {i + 1}
                             </button>
@@ -737,7 +812,7 @@ const AppContent: React.FC = () => {
                   {/* Latest holidays / Next upcoming card */}
                   <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5 shadow-xs">
                     <h3 className="font-display font-semibold text-sm text-zinc-900 dark:text-white mb-4 flex items-center gap-1.5">
-                      <Sparkles className="w-4 h-4 text-amber-500" />
+                      <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                       Upcoming in Africa
                     </h3>
                     
@@ -750,7 +825,7 @@ const AppContent: React.FC = () => {
                           <div>
                             <button
                               onClick={() => navigate('holiday', h.id)}
-                              className="font-semibold text-xs text-zinc-800 dark:text-zinc-200 hover:text-amber-500 text-left hover:underline block"
+                              className="font-semibold text-xs text-zinc-800 dark:text-zinc-200 hover:text-emerald-600 dark:hover:text-emerald-400 text-left hover:underline block"
                             >
                               {h.holidayName}
                             </button>
@@ -794,7 +869,7 @@ const AppContent: React.FC = () => {
               {/* Back breadcrumb */}
               <button 
                 onClick={() => navigate('home')} 
-                className="text-xs font-semibold text-amber-600 hover:text-amber-700 flex items-center gap-1 cursor-pointer"
+                className="text-xs font-semibold text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 flex items-center gap-1 cursor-pointer"
               >
                 <ChevronLeft className="w-4 h-4" /> Back to Holiday Finder
               </button>
@@ -803,7 +878,7 @@ const AppContent: React.FC = () => {
                 <div className="lg:col-span-3 space-y-6">
                   {/* Hero headers */}
                   <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 sm:p-8 shadow-xs relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl -mr-8 -mt-8"></div>
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl -mr-8 -mt-8"></div>
                     <div className="flex items-center gap-3">
                       <span className="text-4xl sm:text-5xl">{countries.find(c => c.countryName === viewPayload)?.flag || "🌍"}</span>
                       <div>
@@ -841,7 +916,7 @@ const AppContent: React.FC = () => {
                             <div className="space-y-1">
                               <div className="flex items-center gap-2">
                                 <span className="font-display font-bold text-base text-zinc-900 dark:text-white">{h.holidayName}</span>
-                                <span className={`inline-flex px-1.5 py-0.5 rounded text-[9px] font-bold ${h.type === 'Public' ? 'bg-amber-100 text-amber-800 dark:bg-amber-500/10' : 'bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-400'}`}>
+                                <span className={`inline-flex px-1.5 py-0.5 rounded text-[9px] font-bold ${h.type === 'Public' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/10' : 'bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-400'}`}>
                                   {h.type}
                                 </span>
                               </div>
@@ -864,7 +939,7 @@ const AppContent: React.FC = () => {
                 <div className="space-y-6">
                   {/* Travel Tips Info */}
                   <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5 shadow-xs space-y-3">
-                    <h4 className="font-display font-semibold text-xs uppercase tracking-wider text-amber-600 flex items-center gap-1">
+                    <h4 className="font-display font-semibold text-xs uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
                       <Sparkles className="w-3.5 h-3.5" />
                       Travel Planner Tip
                     </h4>
@@ -894,7 +969,7 @@ const AppContent: React.FC = () => {
               {/* Back button */}
               <button 
                 onClick={() => navigate('home')} 
-                className="text-xs font-semibold text-amber-600 hover:text-amber-700 flex items-center gap-1 cursor-pointer"
+                className="text-xs font-semibold text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 flex items-center gap-1 cursor-pointer"
               >
                 <ChevronLeft className="w-4 h-4" /> Back to Calendar
               </button>
@@ -910,7 +985,7 @@ const AppContent: React.FC = () => {
               ) : (
                 <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl overflow-hidden shadow-sm">
                   {/* Top Header Card decoration */}
-                  <div className="bg-gradient-to-r from-amber-500 to-rose-500 p-8 text-white relative">
+                  <div className="bg-gradient-to-r from-emerald-600 to-teal-500 dark:from-emerald-700 dark:to-teal-600 p-8 text-white relative">
                     <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-3xl -mr-12 -mt-12"></div>
                     
                     <span className="text-xs font-mono tracking-widest uppercase bg-white/20 px-2.5 py-1 rounded font-semibold">
@@ -988,7 +1063,7 @@ const AppContent: React.FC = () => {
                   {/* Dashboard stats row */}
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-5 rounded-2xl shadow-xs flex items-center gap-4">
-                      <div className="bg-amber-500/10 text-amber-600 p-3 rounded-xl"><Building className="w-6 h-6" /></div>
+                      <div className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 p-3 rounded-xl"><Building className="w-6 h-6" /></div>
                       <div>
                         <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Active Countries</span>
                         <p className="text-xl font-bold font-display text-zinc-900 dark:text-zinc-50">{countries.length}</p>
@@ -996,7 +1071,7 @@ const AppContent: React.FC = () => {
                     </div>
                     
                     <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-5 rounded-2xl shadow-xs flex items-center gap-4">
-                      <div className="bg-amber-500/10 text-amber-600 p-3 rounded-xl"><CalIcon className="w-6 h-6" /></div>
+                      <div className="bg-teal-500/10 text-teal-600 dark:text-teal-400 p-3 rounded-xl"><CalIcon className="w-6 h-6" /></div>
                       <div>
                         <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Schedules Managed</span>
                         <p className="text-xl font-bold font-display text-zinc-900 dark:text-zinc-50">{holidays.length}</p>
@@ -1004,7 +1079,7 @@ const AppContent: React.FC = () => {
                     </div>
 
                     <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-5 rounded-2xl shadow-xs flex items-center gap-4">
-                      <div className="bg-amber-500/10 text-amber-600 p-3 rounded-xl"><DollarSign className="w-6 h-6" /></div>
+                      <div className="bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 p-3 rounded-xl"><DollarSign className="w-6 h-6" /></div>
                       <div>
                         <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">CPC Ad Placements</span>
                         <p className="text-xl font-bold font-display text-zinc-900 dark:text-zinc-50">{ads.filter(a=>a.isActive).length} / {ads.length}</p>
@@ -1027,7 +1102,7 @@ const AppContent: React.FC = () => {
                             setEditingCountry(null);
                             setIsCountryModalOpen(true);
                           }}
-                          className="px-2.5 py-1.5 text-[11px] font-semibold bg-amber-500 text-white rounded-lg flex items-center gap-1 cursor-pointer"
+                          className="px-2.5 py-1.5 text-[11px] font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg flex items-center gap-1 cursor-pointer"
                           id="btn-add-country"
                         >
                           <Plus className="w-3.5 h-3.5" /> Add Country
@@ -1051,7 +1126,7 @@ const AppContent: React.FC = () => {
                                   setEditingCountry(c);
                                   setIsCountryModalOpen(true);
                                 }}
-                                className="p-1 text-zinc-500 hover:text-amber-500 rounded cursor-pointer"
+                                className="p-1 text-zinc-500 hover:text-emerald-600 dark:hover:text-emerald-400 rounded cursor-pointer"
                                 title="Edit Country"
                               >
                                 <Edit2 className="w-3.5 h-3.5" />
@@ -1078,7 +1153,7 @@ const AppContent: React.FC = () => {
                             setEditingHoliday(null);
                             setIsHolidayModalOpen(true);
                           }}
-                          className="px-2.5 py-1.5 text-[11px] font-semibold bg-amber-500 text-white rounded-lg flex items-center gap-1 cursor-pointer"
+                          className="px-2.5 py-1.5 text-[11px] font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg flex items-center gap-1 cursor-pointer"
                           id="btn-add-holiday"
                         >
                           <Plus className="w-3.5 h-3.5" /> Add Holiday
@@ -1108,7 +1183,7 @@ const AppContent: React.FC = () => {
                                         setEditingHoliday(h);
                                         setIsHolidayModalOpen(true);
                                       }}
-                                      className="p-1 text-zinc-500 hover:text-amber-500 rounded cursor-pointer"
+                                      className="p-1 text-zinc-500 hover:text-emerald-600 dark:hover:text-emerald-400 rounded cursor-pointer"
                                       title="Edit Holiday"
                                     >
                                       <Edit2 className="w-3.5 h-3.5" />
@@ -1150,9 +1225,9 @@ const AppContent: React.FC = () => {
           </div>
           
           <div className="flex flex-wrap gap-x-6 gap-y-2 justify-center font-semibold font-display">
-            <button onClick={() => navigate('home')} className="hover:text-amber-500 cursor-pointer">Sitemap Paths</button>
-            <a href="/robots.txt" target="_blank" className="hover:text-amber-500">Robots.txt</a>
-            <a href="/sitemap.xml" target="_blank" className="hover:text-amber-500">Sitemap.xml</a>
+            <button onClick={() => navigate('home')} className="hover:text-emerald-600 dark:hover:text-emerald-400 cursor-pointer">Sitemap Paths</button>
+            <a href="/robots.txt" target="_blank" className="hover:text-emerald-600 dark:hover:text-emerald-400">Robots.txt</a>
+            <a href="/sitemap.xml" target="_blank" className="hover:text-emerald-600 dark:hover:text-emerald-400">Sitemap.xml</a>
           </div>
         </div>
       </footer>

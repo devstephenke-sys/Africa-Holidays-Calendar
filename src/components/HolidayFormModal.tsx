@@ -111,7 +111,7 @@ export const HolidayFormModal: React.FC<HolidayFormModalProps> = ({
         {/* Modal Header */}
         <div className="flex justify-between items-center px-6 py-4 border-b border-zinc-200 dark:border-zinc-800">
           <h3 className="font-display font-semibold text-lg text-zinc-900 dark:text-white flex items-center gap-2">
-            <CalIcon className="w-5 h-5 text-amber-500" />
+            <CalIcon className="w-5 h-5 text-emerald-600" />
             {holiday ? 'Edit Public Holiday' : 'Add Public Holiday'}
           </h3>
           <button 
@@ -134,7 +134,7 @@ export const HolidayFormModal: React.FC<HolidayFormModalProps> = ({
               placeholder="e.g. Independence Day, Mashujaa Day"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full text-sm px-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/40 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
+              className="w-full text-sm px-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/40 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               id="field-holiday-name"
             />
           </div>
@@ -146,7 +146,7 @@ export const HolidayFormModal: React.FC<HolidayFormModalProps> = ({
               required
               value={countryId}
               onChange={(e) => setCountryId(e.target.value)}
-              className="w-full text-sm px-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/40 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
+              className="w-full text-sm px-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/40 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               id="field-country-select"
             >
               <option value="" disabled>Select Country</option>
@@ -165,7 +165,7 @@ export const HolidayFormModal: React.FC<HolidayFormModalProps> = ({
                 required
                 value={dateStr}
                 onChange={(e) => handleDateChange(e.target.value)}
-                className="w-full text-sm px-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/40 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
+                className="w-full text-sm px-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/40 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
                 id="field-holiday-date"
               />
             </div>
@@ -176,7 +176,7 @@ export const HolidayFormModal: React.FC<HolidayFormModalProps> = ({
                 required
                 value={type}
                 onChange={(e) => setType(e.target.value)}
-                className="w-full text-sm px-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/40 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
+                className="w-full text-sm px-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/40 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
                 id="field-holiday-type"
               >
                 <option value="Public">Public Holiday</option>
@@ -203,7 +203,7 @@ export const HolidayFormModal: React.FC<HolidayFormModalProps> = ({
               placeholder="e.g. Celebrates the freedom and birth of the republic."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full text-sm px-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/40 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 resize-none"
+              className="w-full text-sm px-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/40 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 resize-none"
               id="field-holiday-desc"
             />
           </div>
@@ -222,7 +222,7 @@ export const HolidayFormModal: React.FC<HolidayFormModalProps> = ({
                 className="sr-only peer"
                 id="field-holiday-is-public"
               />
-              <div className="w-11 h-6 bg-zinc-200 peer-focus:outline-none dark:bg-zinc-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-zinc-600 peer-checked:bg-amber-500"></div>
+              <div className="w-11 h-6 bg-zinc-200 peer-focus:outline-none dark:bg-zinc-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-zinc-600 peer-checked:bg-emerald-600"></div>
             </label>
           </div>
 
@@ -238,7 +238,7 @@ export const HolidayFormModal: React.FC<HolidayFormModalProps> = ({
             </button>
             <button
               type="submit"
-              className="px-5 py-2 text-sm font-semibold bg-amber-500 text-white rounded-xl shadow-md shadow-amber-500/10 hover:bg-amber-600 hover:scale-102 transition-all cursor-pointer"
+              className="px-5 py-2 text-sm font-semibold bg-emerald-600 text-white rounded-xl shadow-md shadow-emerald-500/10 hover:bg-emerald-700 hover:scale-102 transition-all cursor-pointer"
               id="save-holiday-modal-btn"
             >
               Save Holiday

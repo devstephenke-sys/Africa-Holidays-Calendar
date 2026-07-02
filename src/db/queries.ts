@@ -1,6 +1,4 @@
-import { db } from './index.ts';
-import { countries, holidays, adsPositions } from './schema.ts';
-import { eq, and, ilike, SQL } from 'drizzle-orm';
+import { prisma } from './prisma.ts';
 
 // Helper for query-layer error sanitization
 function sanitizeError(msg: string, error: unknown): Error {
@@ -14,7 +12,11 @@ function sanitizeError(msg: string, error: unknown): Error {
 
 export async function getCountries() {
   try {
-    return await db.select().from(countries).orderBy(countries.countryName);
+    return await prisma.country.findMany({
+      orderBy: {
+        countryName: 'asc',
+      },
+    });
   } catch (error) {
     throw sanitizeError("Failed to fetch countries from database", error);
   }
@@ -22,8 +24,9 @@ export async function getCountries() {
 
 export async function getCountryById(id: number) {
   try {
-    const result = await db.select().from(countries).where(eq(countries.id, id));
-    return result[0] || null;
+    return await prisma.country.findUnique({
+      where: { id },
+    });
   } catch (error) {
     throw sanitizeError(`Failed to fetch country with ID ${id}`, error);
   }
@@ -31,8 +34,9 @@ export async function getCountryById(id: number) {
 
 export async function getCountryByName(name: string) {
   try {
-    const result = await db.select().from(countries).where(eq(countries.countryName, name));
-    return result[0] || null;
+    return await prisma.country.findUnique({
+      where: { countryName: name },
+    });
   } catch (error) {
     throw sanitizeError(`Failed to fetch country with name ${name}`, error);
   }
@@ -40,14 +44,13 @@ export async function getCountryByName(name: string) {
 
 export async function createCountry(data: { countryName: string; code: string; flag?: string }) {
   try {
-    const result = await db.insert(countries)
-      .values({
+    return await prisma.country.create({
+      data: {
         countryName: data.countryName,
         code: data.code.toUpperCase(),
         flag: data.flag || "🌍",
-      })
-      .returning();
-    return result[0];
+      },
+    });
   } catch (error) {
     throw sanitizeError("Failed to create country", error);
   }
@@ -55,16 +58,15 @@ export async function createCountry(data: { countryName: string; code: string; f
 
 export async function updateCountry(id: number, data: { countryName?: string; code?: string; flag?: string }) {
   try {
-    const updateObj: Partial<typeof countries.$inferInsert> = {};
+    const updateObj: any = {};
     if (data.countryName !== undefined) updateObj.countryName = data.countryName;
     if (data.code !== undefined) updateObj.code = data.code.toUpperCase();
     if (data.flag !== undefined) updateObj.flag = data.flag;
 
-    const result = await db.update(countries)
-      .set(updateObj)
-      .where(eq(countries.id, id))
-      .returning();
-    return result[0];
+    return await prisma.country.update({
+      where: { id },
+      data: updateObj,
+    });
   } catch (error) {
     throw sanitizeError(`Failed to update country with ID ${id}`, error);
   }
@@ -72,8 +74,9 @@ export async function updateCountry(id: number, data: { countryName?: string; co
 
 export async function deleteCountry(id: number) {
   try {
-    const result = await db.delete(countries).where(eq(countries.id, id)).returning();
-    return result[0];
+    return await prisma.country.delete({
+      where: { id },
+    });
   } catch (error) {
     throw sanitizeError(`Failed to delete country with ID ${id}`, error);
   }
@@ -94,57 +97,58 @@ export interface HolidayFilters {
 
 export async function getHolidays(filters: HolidayFilters = {}) {
   try {
-    const conditions: SQL[] = [];
+    const conditions: any = {};
 
     if (filters.countryId) {
-      conditions.push(eq(holidays.countryId, filters.countryId));
+      conditions.countryId = filters.countryId;
     }
     if (filters.month) {
-      conditions.push(eq(holidays.month, filters.month));
+      conditions.month = filters.month;
     }
     if (filters.year) {
-      conditions.push(eq(holidays.year, filters.year));
+      conditions.year = filters.year;
     }
     if (filters.type) {
-      conditions.push(eq(holidays.type, filters.type));
+      conditions.type = filters.type;
     }
     if (filters.search) {
-      conditions.push(ilike(holidays.holidayName, `%${filters.search}%`));
+      conditions.holidayName = {
+        contains: filters.search,
+        mode: 'insensitive',
+      };
     }
 
-    // Build query
-    let query = db.select({
-      id: holidays.id,
-      holidayName: holidays.holidayName,
-      date: holidays.date,
-      month: holidays.month,
-      year: holidays.year,
-      day: holidays.day,
-      description: holidays.description,
-      type: holidays.type,
-      isPublic: holidays.isPublic,
-      countryId: holidays.countryId,
-      countryName: countries.countryName,
-      countryCode: countries.code,
-      countryFlag: countries.flag,
-    })
-    .from(holidays)
-    .leftJoin(countries, eq(holidays.countryId, countries.id));
+    const results = await prisma.holiday.findMany({
+      where: conditions,
+      include: {
+        country: true,
+      },
+      orderBy: {
+        date: 'asc',
+      },
+    });
 
-    // Apply where clause if there are conditions
-    if (conditions.length > 0) {
-      query = query.where(and(...conditions)) as any;
-    }
+    const mapped = results.map(h => ({
+      id: h.id,
+      holidayName: h.holidayName,
+      date: h.date,
+      month: h.month,
+      year: h.year,
+      day: h.day,
+      description: h.description,
+      type: h.type,
+      isPublic: h.isPublic,
+      countryId: h.countryId,
+      countryName: h.country?.countryName || null,
+      countryCode: h.country?.code || null,
+      countryFlag: h.country?.flag || null,
+    }));
 
-    // Sort by date/month order. For simplicity, sort by date string (e.g. YYYY-MM-DD)
-    const results = await query.orderBy(holidays.date);
-
-    // If countryName filter was requested client-side (for SEO friendly slugs)
     if (filters.countryName) {
-      return results.filter(h => h.countryName?.toLowerCase() === filters.countryName?.toLowerCase());
+      return mapped.filter(h => h.countryName?.toLowerCase() === filters.countryName?.toLowerCase());
     }
 
-    return results;
+    return mapped;
   } catch (error) {
     throw sanitizeError("Failed to fetch holidays with filters", error);
   }
@@ -152,26 +156,30 @@ export async function getHolidays(filters: HolidayFilters = {}) {
 
 export async function getHolidayById(id: number) {
   try {
-    const result = await db.select({
-      id: holidays.id,
-      holidayName: holidays.holidayName,
-      date: holidays.date,
-      month: holidays.month,
-      year: holidays.year,
-      day: holidays.day,
-      description: holidays.description,
-      type: holidays.type,
-      isPublic: holidays.isPublic,
-      countryId: holidays.countryId,
-      countryName: countries.countryName,
-      countryCode: countries.code,
-      countryFlag: countries.flag,
-    })
-    .from(holidays)
-    .leftJoin(countries, eq(holidays.countryId, countries.id))
-    .where(eq(holidays.id, id));
+    const h = await prisma.holiday.findUnique({
+      where: { id },
+      include: {
+        country: true,
+      },
+    });
 
-    return result[0] || null;
+    if (!h) return null;
+
+    return {
+      id: h.id,
+      holidayName: h.holidayName,
+      date: h.date,
+      month: h.month,
+      year: h.year,
+      day: h.day,
+      description: h.description,
+      type: h.type,
+      isPublic: h.isPublic,
+      countryId: h.countryId,
+      countryName: h.country?.countryName || null,
+      countryCode: h.country?.code || null,
+      countryFlag: h.country?.flag || null,
+    };
   } catch (error) {
     throw sanitizeError(`Failed to fetch holiday with ID ${id}`, error);
   }
@@ -189,8 +197,8 @@ export async function createHoliday(data: {
   isPublic?: boolean;
 }) {
   try {
-    const result = await db.insert(holidays)
-      .values({
+    return await prisma.holiday.create({
+      data: {
         countryId: data.countryId,
         holidayName: data.holidayName,
         date: data.date,
@@ -200,9 +208,8 @@ export async function createHoliday(data: {
         description: data.description,
         type: data.type,
         isPublic: data.isPublic !== undefined ? data.isPublic : true,
-      })
-      .returning();
-    return result[0];
+      },
+    });
   } catch (error) {
     throw sanitizeError("Failed to create holiday", error);
   }
@@ -220,7 +227,7 @@ export async function updateHoliday(id: number, data: {
   isPublic?: boolean;
 }) {
   try {
-    const updateObj: Partial<typeof holidays.$inferInsert> = {};
+    const updateObj: any = {};
     if (data.countryId !== undefined) updateObj.countryId = data.countryId;
     if (data.holidayName !== undefined) updateObj.holidayName = data.holidayName;
     if (data.date !== undefined) updateObj.date = data.date;
@@ -231,11 +238,10 @@ export async function updateHoliday(id: number, data: {
     if (data.type !== undefined) updateObj.type = data.type;
     if (data.isPublic !== undefined) updateObj.isPublic = data.isPublic;
 
-    const result = await db.update(holidays)
-      .set(updateObj)
-      .where(eq(holidays.id, id))
-      .returning();
-    return result[0];
+    return await prisma.holiday.update({
+      where: { id },
+      data: updateObj,
+    });
   } catch (error) {
     throw sanitizeError(`Failed to update holiday with ID ${id}`, error);
   }
@@ -243,8 +249,9 @@ export async function updateHoliday(id: number, data: {
 
 export async function deleteHoliday(id: number) {
   try {
-    const result = await db.delete(holidays).where(eq(holidays.id, id)).returning();
-    return result[0];
+    return await prisma.holiday.delete({
+      where: { id },
+    });
   } catch (error) {
     throw sanitizeError(`Failed to delete holiday with ID ${id}`, error);
   }
@@ -256,7 +263,11 @@ export async function deleteHoliday(id: number) {
 
 export async function getAdsPositions() {
   try {
-    return await db.select().from(adsPositions).orderBy(adsPositions.id);
+    return await prisma.adsPosition.findMany({
+      orderBy: {
+        id: 'asc',
+      },
+    });
   } catch (error) {
     throw sanitizeError("Failed to fetch Google Ads positions", error);
   }
@@ -269,17 +280,16 @@ export async function updateAdPosition(id: number, data: {
   adFormat?: string;
 }) {
   try {
-    const updateObj: Partial<typeof adsPositions.$inferInsert> = {};
+    const updateObj: any = {};
     if (data.isActive !== undefined) updateObj.isActive = data.isActive;
     if (data.adClient !== undefined) updateObj.adClient = data.adClient;
     if (data.adSlot !== undefined) updateObj.adSlot = data.adSlot;
     if (data.adFormat !== undefined) updateObj.adFormat = data.adFormat;
 
-    const result = await db.update(adsPositions)
-      .set(updateObj)
-      .where(eq(adsPositions.id, id))
-      .returning();
-    return result[0];
+    return await prisma.adsPosition.update({
+      where: { id },
+      data: updateObj,
+    });
   } catch (error) {
     throw sanitizeError(`Failed to update Ad position with ID ${id}`, error);
   }

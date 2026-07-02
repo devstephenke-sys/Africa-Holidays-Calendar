@@ -5,25 +5,21 @@
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",
-    "build": "vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
+    "build": "prisma generate && vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
     "start": "node dist/server.cjs",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
+    "@prisma/client": "^6.2.0",
     "@tailwindcss/vite": "^4.1.14",
-    "@types/pg": "^8.20.0",
     "@vitejs/plugin-react": "^5.0.4",
     "dotenv": "^17.2.3",
-    "drizzle-kit": "^0.31.10",
-    "drizzle-orm": "^0.45.2",
     "express": "^4.21.2",
-    "firebase": "^12.15.0",
-    "firebase-admin": "^14.1.0",
     "lucide-react": "^0.546.0",
     "motion": "^12.23.24",
-    "pg": "^8.22.0",
+    "prisma": "^6.2.0",
     "react": "^19.0.1",
     "react-dom": "^19.0.1",
     "vite": "^6.2.3"

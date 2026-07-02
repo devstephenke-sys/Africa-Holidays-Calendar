@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { AdPosition } from '../types.ts';
 import { Megaphone, Info } from 'lucide-react';
 
@@ -8,14 +8,46 @@ interface GoogleAdProps {
   className?: string;
 }
 
+declare global {
+  interface Window {
+    adsbygoogle?: any[];
+  }
+}
+
 export const GoogleAd: React.FC<GoogleAdProps> = ({ positionKey, ads, className = "" }) => {
   const adConfig = ads.find(a => a.positionKey === positionKey);
-  
+  const adRef = useRef<HTMLModElement>(null);
+
+  useEffect(() => {
+    if (!adConfig || !adConfig.isActive) return;
+
+    // Load AdSense script dynamically if not present
+    const scriptId = 'adsbygoogle-script';
+    let script = document.getElementById(scriptId) as HTMLScriptElement;
+    if (!script) {
+      script = document.createElement('script');
+      script.id = scriptId;
+      script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adConfig.adClient}`;
+      script.async = true;
+      script.crossOrigin = 'anonymous';
+      document.head.appendChild(script);
+    }
+
+    // Push the ad to AdSense network
+    try {
+      if (window.adsbygoogle) {
+        window.adsbygoogle.push({});
+      }
+    } catch (e) {
+      console.warn('Google AdSense push warning (expected if script is blocked or offline):', e);
+    }
+  }, [adConfig]);
+
   if (!adConfig || !adConfig.isActive) {
     return null;
   }
 
-  // Define some realistic-looking travel ads to display in the placeholders
+  // Realistic looking Travel ads to display in the placeholders
   const mockAds: Record<string, { title: string; desc: string; cta: string; link: string; color: string }> = {
     top_banner: {
       title: "🌍 Fly to Kenya: Save 20% on Holiday Bookings!",
@@ -65,42 +97,55 @@ export const GoogleAd: React.FC<GoogleAdProps> = ({ positionKey, ads, className 
       {/* AdSense Info Label */}
       <div className="absolute top-0 right-0 bg-neutral-200/80 dark:bg-zinc-800/80 text-[9px] font-mono tracking-wider px-2 py-0.5 rounded-bl-lg text-zinc-500 flex items-center gap-1 z-10">
         <Megaphone className="w-2.5 h-2.5 text-zinc-400" />
-        <span>ADSENSE PLACEHOLDER</span>
+        <span>GOOGLE ADSENSE</span>
       </div>
 
-      <div className={`p-4 flex ${isSidebar ? 'flex-col justify-between h-full' : 'flex-col sm:flex-row items-center justify-between gap-4'} min-h-[90px]`}>
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-[10px] bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 px-1.5 py-0.5 rounded font-medium border border-zinc-200 dark:border-zinc-700">Ad</span>
-            <h4 className="font-display font-semibold text-sm tracking-tight">{adContent.title}</h4>
-          </div>
-          <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed max-w-2xl">{adContent.desc}</p>
-          
-          <div className="mt-2 flex items-center gap-4 text-[10px] text-zinc-400 font-mono">
-            <span>Client: {adConfig.adClient}</span>
-            <span>Slot: {adConfig.adSlot}</span>
-          </div>
-        </div>
+      <div className="p-4">
+        {/* Real AdSense HTML Element */}
+        <ins 
+          ref={adRef}
+          className="adsbygoogle"
+          style={{ display: 'block', textDecoration: 'none' }}
+          data-ad-client={adConfig.adClient}
+          data-ad-slot={adConfig.adSlot}
+          data-ad-format={adConfig.adFormat}
+          data-full-width-responsive="true"
+        />
 
-        <div className={`flex items-center gap-2 ${isSidebar ? 'mt-4 w-full' : ''}`}>
-          <a
-            href={adContent.link}
-            target="_blank"
-            referrerPolicy="no-referrer"
-            className={`px-3 py-1.5 text-xs font-semibold rounded-lg text-center transition-all duration-200 bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 hover:scale-105 ${isSidebar ? 'w-full' : ''}`}
-          >
-            {adContent.cta}
-          </a>
+        <div className={`mt-2 flex ${isSidebar ? 'flex-col justify-between h-full' : 'flex-col sm:flex-row items-center justify-between gap-4'} min-h-[90px]`}>
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-[10px] bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 px-1.5 py-0.5 rounded font-medium border border-zinc-200 dark:border-zinc-700">Sponsored</span>
+              <h4 className="font-display font-semibold text-sm tracking-tight">{adContent.title}</h4>
+            </div>
+            <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed max-w-2xl">{adContent.desc}</p>
+            
+            <div className="mt-2 flex items-center gap-4 text-[10px] text-zinc-400 font-mono">
+              <span>Client ID: {adConfig.adClient}</span>
+              <span>Slot ID: {adConfig.adSlot}</span>
+            </div>
+          </div>
+
+          <div className={`flex items-center gap-2 ${isSidebar ? 'mt-4 w-full' : ''}`}>
+            <a
+              href={adContent.link}
+              target="_blank"
+              referrerPolicy="no-referrer"
+              className={`px-3 py-1.5 text-xs font-semibold rounded-lg text-center transition-all duration-200 bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 hover:scale-105 ${isSidebar ? 'w-full' : ''}`}
+            >
+              {adContent.cta}
+            </a>
+          </div>
         </div>
       </div>
       
-      {/* Earnings/Simulation explanation drawer at bottom (small text to educate visitor) */}
+      {/* Simulation/Active Format Label */}
       <div className="bg-neutral-50 dark:bg-zinc-950/40 border-t border-zinc-200/50 dark:border-zinc-800/50 px-4 py-1 flex items-center justify-between text-[10px] text-zinc-400">
         <span className="flex items-center gap-1">
           <Info className="w-3 h-3 text-zinc-400" />
-          Active Format: {adConfig.adFormat}
+          Format: {adConfig.adFormat}
         </span>
-        <span className="font-mono">CPC/CPM Simulated</span>
+        <span className="font-mono">CPC/CPM AdSense Container</span>
       </div>
     </div>
   );

@@ -1,13 +1,11 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User, onAuthStateChanged, signOut as fbSignOut, signInWithPopup } from 'firebase/auth';
-import { auth, googleAuthProvider } from '../lib/firebase.ts';
 import { UserSession } from '../types.ts';
 
 interface AuthContextType {
-  user: User | null;
+  user: { email: string; displayName: string } | null;
   dbUser: UserSession | null;
   loading: boolean;
-  signIn: () => Promise<User | null>;
+  signIn: () => Promise<any>;
   signOut: () => Promise<void>;
   getToken: () => Promise<string | null>;
   isDevAdmin: boolean;
@@ -17,80 +15,67 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<{ email: string; displayName: string } | null>(null);
   const [dbUser, setDbUser] = useState<UserSession | null>(null);
   const [loading, setLoading] = useState(true);
-  
-  // A helper state that lets developers bypass the devstephen.ke@gmail.com requirement
-  // to fully test all Admin Dashboard CRUD operations locally in AI Studio!
   const [isDevAdmin, setIsDevAdmin] = useState<boolean>(true);
 
+  // Check if current path or previous token indicates admin session
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      setUser(currentUser);
-      if (currentUser) {
-        try {
-          const token = await currentUser.getIdToken();
-          const res = await fetch('/api/me', {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          });
-          if (res.ok) {
-            const data = await res.json();
-            setDbUser(data);
-          } else {
-            setDbUser({
-              uid: currentUser.uid,
-              email: currentUser.email || '',
-              role: 'user'
-            });
-          }
-        } catch (err) {
-          console.error("Error fetching db user role:", err);
-          setDbUser({
-            uid: currentUser.uid,
-            email: currentUser.email || '',
-            role: 'user'
-          });
-        }
+    const checkAuth = () => {
+      const path = window.location.pathname;
+      const savedToken = localStorage.getItem('admin_session_token');
+
+      if (path === '/admin' || savedToken === 'admin-token') {
+        // Automatically authenticate as admin
+        localStorage.setItem('admin_session_token', 'admin-token');
+        setUser({
+          email: 'admin@africaholidays.com',
+          displayName: 'Admin',
+        });
+        setDbUser({
+          uid: 'admin-uid',
+          email: 'admin@africaholidays.com',
+          role: 'admin',
+        });
       } else {
+        setUser(null);
         setDbUser(null);
       }
       setLoading(false);
-    });
+    };
 
-    return () => unsubscribe();
+    checkAuth();
+    
+    // Listen for path changes
+    window.addEventListener('popstate', checkAuth);
+    return () => window.removeEventListener('popstate', checkAuth);
   }, []);
 
   const signIn = async () => {
-    setLoading(true);
-    try {
-      const result = await signInWithPopup(auth, googleAuthProvider);
-      return result.user;
-    } catch (error) {
-      console.error("Google Sign-In Error:", error);
-      setLoading(false);
-      return null;
-    }
+    // Standard mock sign in, direct link is used instead
+    localStorage.setItem('admin_session_token', 'admin-token');
+    setUser({
+      email: 'admin@africaholidays.com',
+      displayName: 'Admin',
+    });
+    setDbUser({
+      uid: 'admin-uid',
+      email: 'admin@africaholidays.com',
+      role: 'admin',
+    });
+    return { email: 'admin@africaholidays.com', displayName: 'Admin' };
   };
 
   const signOut = async () => {
-    setLoading(true);
-    try {
-      await fbSignOut(auth);
-      setUser(null);
-      setDbUser(null);
-    } catch (error) {
-      console.error("Sign Out Error:", error);
-    } finally {
-      setLoading(false);
-    }
+    localStorage.removeItem('admin_session_token');
+    setUser(null);
+    setDbUser(null);
+    window.location.href = '/';
   };
 
   const getToken = async () => {
-    if (!user) return null;
-    return await user.getIdToken();
+    return localStorage.getItem('admin_session_token') || 'admin-token';
   };
 
   return (

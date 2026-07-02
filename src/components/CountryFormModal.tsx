@@ -79,7 +79,7 @@ export const CountryFormModal: React.FC<CountryFormModalProps> = ({
         {/* Modal Header */}
         <div className="flex justify-between items-center px-6 py-4 border-b border-zinc-200 dark:border-zinc-800">
           <h3 className="font-display font-semibold text-lg text-zinc-900 dark:text-white flex items-center gap-2">
-            <Globe className="w-5 h-5 text-amber-500" />
+            <Globe className="w-5 h-5 text-emerald-600" />
             {country ? 'Edit African Country' : 'Add African Country'}
           </h3>
           <button 
@@ -102,7 +102,7 @@ export const CountryFormModal: React.FC<CountryFormModalProps> = ({
               placeholder="e.g. Kenya, South Africa, Senegal"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full text-sm px-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/40 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
+              className="w-full text-sm px-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/40 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               id="field-country-name"
             />
           </div>
@@ -118,7 +118,7 @@ export const CountryFormModal: React.FC<CountryFormModalProps> = ({
                 placeholder="e.g. KE, ZA, NG"
                 value={code}
                 onChange={(e) => handleCodeChange(e.target.value)}
-                className="w-full text-sm px-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/40 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 uppercase font-mono text-center tracking-widest"
+                className="w-full text-sm px-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/40 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 uppercase font-mono text-center tracking-widest"
                 id="field-country-code"
               />
             </div>
@@ -148,7 +148,7 @@ export const CountryFormModal: React.FC<CountryFormModalProps> = ({
             </button>
             <button
               type="submit"
-              className="px-5 py-2 text-sm font-semibold bg-amber-500 text-white rounded-xl shadow-md shadow-amber-500/10 hover:bg-amber-600 hover:scale-102 transition-all cursor-pointer"
+              className="px-5 py-2 text-sm font-semibold bg-emerald-600 text-white rounded-xl shadow-md shadow-emerald-500/10 hover:bg-emerald-700 hover:scale-102 transition-all cursor-pointer"
               id="save-country-modal-btn"
             >
               Save Country
