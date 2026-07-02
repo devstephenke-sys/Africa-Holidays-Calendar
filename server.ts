@@ -76,6 +76,38 @@ app.get('/sitemap.xml', async (req, res) => {
 // API Routes
 // ---------------------------------------------------------------------------
 
+// 0. Database Diagnostics API
+app.get('/api/debug-db', async (req, res) => {
+  try {
+    const { prisma } = await import('./src/db/prisma.ts');
+    const countryCount = await prisma.country.count();
+    const holidayCount = await prisma.holiday.count();
+    
+    const rawUrl = process.env.DATABASE_URL || '';
+    const maskedUrl = rawUrl ? rawUrl.replace(/:[^@]+@/, ':****@') : 'Not defined';
+    
+    res.json({
+      status: "connected",
+      databaseUrl: maskedUrl,
+      counts: {
+        countries: countryCount,
+        holidays: holidayCount
+      }
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      status: "error",
+      message: error.message,
+      stack: error.stack,
+      env: {
+        DATABASE_URL_DEFINED: !!process.env.DATABASE_URL,
+        VERCEL: process.env.VERCEL,
+        NODE_ENV: process.env.NODE_ENV
+      }
+    });
+  }
+});
+
 // 1. Countries API
 app.get('/api/countries', async (req, res) => {
   try {
